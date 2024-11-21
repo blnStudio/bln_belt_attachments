@@ -135,7 +135,7 @@ AddEventHandler(resourceName..':client:RemoveAttachment', function(netId, hash)
 end)
 
 CreateThread(function()
-    if resourceName == 'bln_belt_attachments' then return end
+    if not resourceName == 'bln_belt_attachments' then return end
     InitializeLookupTables()
     while not isResourceStopping do
         local playerPed = PlayerPedId()
