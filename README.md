@@ -13,7 +13,6 @@ Realistically display your weapons and items on your character's belt when equip
 - Synchronized across all players - everyone sees each other's belt items
 - Smooth transitions when equipping/unequipping
 - Works with both male & female characters
-- Fully adjustable positioning with in-game commands
 - Supports multiple item types:
   - Regular and Davy lanterns
   - Regular and reinforced lassos
