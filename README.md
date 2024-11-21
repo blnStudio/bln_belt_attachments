@@ -1,6 +1,10 @@
 # RedM Belt Attachments
 
 <img src="./.github/assets/banner.png" alt="bln Belt Attachments script - redm" width="100%" />
+<div style="display: flex; justify-content: space-between;">
+    <img src="./.github/assets/demo.png" alt="Image 1" width="45%" />
+    <img src="./.github/assets/demo2.png" alt="Image 2" width="45%" />
+</div>
 
 Realistically display your weapons and items on your character's belt when equipped from inventory but not in use! Works with lanterns, lassos, machetes, and more.
 
