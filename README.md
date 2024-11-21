@@ -21,6 +21,8 @@ Realistically display your weapons and items on your character's belt when equip
   - Metal detector
   - And more can be easily added!
 
+There are 5 attachements already configured for you.
+
 ## Preview
 [Video Preview](https://youtu.be/6ZGfaL8W5Ng)
 
