@@ -38,11 +38,13 @@ AddEventHandler('onResourceStop', function(resourceName)
     end
 end)
 
-AddEventHandler('playerDropped', function()
+AddEventHandler('playerDropped', function(reason)
     local src = source
+    print('playerDropped', src, reason)
     for netId, data in pairs(activeAttachments) do
         if data.source == src then
             activeAttachments[netId] = nil
+            print('item removed', netId, data.hash)
             TriggerClientEvent(resourceName..':client:RemoveAttachment', -1, netId, data.hash)
         end
     end

@@ -71,6 +71,7 @@ local function AttachItemToBelt(config)
         
         if DoesEntityExist(entity) then
             NetworkRegisterEntityAsNetworked(entity)
+            Wait(100)
             local netId = NetworkGetNetworkIdFromEntity(entity)
             
             if NetworkDoesNetworkIdExist(netId) then
