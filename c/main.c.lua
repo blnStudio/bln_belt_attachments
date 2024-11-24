@@ -23,12 +23,20 @@ end
 
 local function GetCorrectBone(config, ped)
     local gender = IsPedMale(ped) and 'male' or 'female'
-    return config.bone[gender] or config.bone.male
+    if gender == 'female' and config.bone[gender] == false then
+        return config.bone.male
+    end
+    
+    return config.bone[gender]
 end
 
 local function GetCorrectOffset(config, ped)
     local gender = IsPedMale(ped) and 'male' or 'female'
-    return config.offset[gender] or config.offset.male
+   if gender == 'female' and config.offset[gender] == false then
+        return config.offset.male
+    end
+    
+    return config.offset[gender]
 end
 
 local function GetBoneIndex(ped, boneName)
