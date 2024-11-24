@@ -3,6 +3,9 @@ local isResourceStopping = false
 local hashToConfig = {}
 local nameToHash = {}
 local resourceName = GetCurrentResourceName()
+local lastAttachTime = {}
+local weaponStates = {}
+local DEBOUNCE_TIME = 1000
 
 local function InitializeLookupTables()
     for _, categoryItems in pairs(Config.options) do
@@ -43,24 +46,22 @@ local function GetBoneIndex(ped, boneName)
     return GetEntityBoneIndexByName(ped, boneName)
 end
 
-local function RemoveItemFromBelt(hash)
-    if attachedItems[hash] then
-        if DoesEntityExist(attachedItems[hash]) then
-            local netId = NetworkGetNetworkIdFromEntity(attachedItems[hash])
-            if NetworkDoesNetworkIdExist(netId) then
-                TriggerServerEvent(resourceName..':server:RemoveItem', netId, hash)
-            end
-        end
-        DeleteObject(attachedItems[hash])
-        attachedItems[hash] = nil
-    end
+local function GetPlayerIdentifier()
+    return GetPlayerServerId(PlayerId())
+end
+
+-- Modify event names to include player ID
+local function GetEventName(base, playerId)
+    return string.format('%s:%s:%s', resourceName, base, playerId)
 end
 
 local function AttachItemToBelt(config)
     local playerPed = PlayerPedId()
+    local playerId = GetPlayerIdentifier()
     
     if attachedItems[config.hash] or isResourceStopping then 
         RemoveItemFromBelt(config.hash)
+        Wait(200)
     end
     
     if not HasModelLoaded(config.model) then
@@ -79,13 +80,14 @@ local function AttachItemToBelt(config)
         
         if DoesEntityExist(entity) then
             NetworkRegisterEntityAsNetworked(entity)
-            Wait(100)
+            Wait(1000)
             local netId = NetworkGetNetworkIdFromEntity(entity)
             
             if NetworkDoesNetworkIdExist(netId) then
                 SetEntityAsMissionEntity(entity, true, true)
                 
-                TriggerServerEvent(resourceName..':server:AttachItem', netId, config.hash, GetPlayerServerId(PlayerId()))
+                -- Use player-specific event
+                TriggerServerEvent(GetEventName('server:AttachItem', playerId), netId, config.hash, playerId)
                 
                 AttachEntityToEntity(
                     entity,
@@ -95,14 +97,32 @@ local function AttachItemToBelt(config)
                     offset.pitch, offset.roll, offset.yaw,
                     true, true, false, true, 1, true
                 )
+            else
+                DeleteObject(entity)
             end
         end
     end
 end
 
+-- Modify RemoveItemFromBelt function
+local function RemoveItemFromBelt(hash)
+    if attachedItems[hash] then
+        if DoesEntityExist(attachedItems[hash]) then
+            local netId = NetworkGetNetworkIdFromEntity(attachedItems[hash])
+            if NetworkDoesNetworkIdExist(netId) then
+                -- Use player-specific event
+                TriggerServerEvent(GetEventName('server:RemoveItem', GetPlayerIdentifier()), netId, hash)
+            end
+        end
+        DeleteObject(attachedItems[hash])
+        attachedItems[hash] = nil
+    end
+end
+
 RegisterNetEvent(resourceName..':client:UpdateAttachment')
 AddEventHandler(resourceName..':client:UpdateAttachment', function(netId, hash, sourcePlayer)
-    if sourcePlayer ~= GetPlayerServerId(PlayerId()) then
+    -- Only process if it's meant for another player
+    if sourcePlayer ~= GetPlayerIdentifier() then
         if NetworkDoesNetworkIdExist(netId) then
             local entity = NetworkGetEntityFromNetworkId(netId)
             if DoesEntityExist(entity) then
@@ -113,16 +133,24 @@ AddEventHandler(resourceName..':client:UpdateAttachment', function(netId, hash, 
                         local offset = GetCorrectOffset(config, targetPed)
                         local bone = GetCorrectBone(config, targetPed)
                         
-                        AttachEntityToEntity(
-                            entity,
-                            targetPed,
-                            GetBoneIndex(targetPed, bone),
-                            offset.x, offset.y, offset.z,
-                            offset.pitch, offset.roll, offset.yaw,
-                            true, true, false, true, 1, true
-                        )
-                        
-                        attachedItems[hash] = entity
+                        -- Create a new object for this player
+                        local newEntity = CreateObject(config.model, 0.0, 0.0, 0.0, true, true, true)
+                        if DoesEntityExist(newEntity) then
+                            NetworkRegisterEntityAsNetworked(newEntity)
+                            SetEntityAsMissionEntity(newEntity, true, true)
+                            
+                            AttachEntityToEntity(
+                                newEntity,
+                                targetPed,
+                                GetBoneIndex(targetPed, bone),
+                                offset.x, offset.y, offset.z,
+                                offset.pitch, offset.roll, offset.yaw,
+                                true, true, false, true, 1, true
+                            )
+                            
+                            -- Store with player-specific key
+                            attachedItems[hash .. '_' .. sourcePlayer] = newEntity
+                        end
                     end
                 end
             end
@@ -146,26 +174,38 @@ end)
 CreateThread(function()
     if not resourceName == 'bln_belt_attachments' then return end
     InitializeLookupTables()
+    
     while not isResourceStopping do
         local playerPed = PlayerPedId()
         local _, currentWeapon = GetCurrentPedWeapon(playerPed, true)
+        local currentTime = GetGameTimer()
+        
         for hash, config in pairs(hashToConfig) do
-            if currentWeapon == hash then
-                RemoveItemFromBelt(hash)
-            elseif HasPedGotWeapon(playerPed, hash, false) then
-                if not attachedItems[hash] or not DoesEntityExist(attachedItems[hash]) then
-                    AttachItemToBelt(config)
+            local hasWeapon = HasPedGotWeapon(playerPed, hash, false)
+            local isEquipped = currentWeapon == hash
+            local currentState = hasWeapon and not isEquipped
+            
+            if weaponStates[hash] ~= currentState and 
+               (not lastAttachTime[hash] or (currentTime - lastAttachTime[hash]) > DEBOUNCE_TIME) then
+                
+                if currentState then
+                    if not attachedItems[hash] then
+                        AttachItemToBelt(config)
+                    end
+                else
+                    RemoveItemFromBelt(hash)
                 end
-            else
-                RemoveItemFromBelt(hash)
+                
+                weaponStates[hash] = currentState
+                lastAttachTime[hash] = currentTime
             end
         end
         
-        Wait(100)
+        Wait(250)
     end
 end)
 
-TriggerServerEvent(resourceName..':server:RequestAttachments')
+TriggerServerEvent(GetEventName('server:RequestAttachments', GetPlayerIdentifier()))
 
 AddEventHandler('onResourceStop', function(resourceName)
     if GetCurrentResourceName() ~= resourceName then return end

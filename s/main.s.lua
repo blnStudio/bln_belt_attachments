@@ -1,23 +1,20 @@
 local resourceName = GetCurrentResourceName()
 local activeAttachments = {}
 
-RegisterServerEvent(resourceName..':server:AttachItem')
+local function GetEventName(base, playerId)
+    return string.format('%s:%s:%s', resourceName, base, playerId)
+end
+
+RegisterNetEvent(resourceName..':server:AttachItem')
 AddEventHandler(resourceName..':server:AttachItem', function(netId, hash, sourcePlayer)
-    if netId then
-        activeAttachments[netId] = {
-            hash = hash,
-            source = sourcePlayer
-        }
-        TriggerClientEvent(resourceName..':client:UpdateAttachment', -1, netId, hash, sourcePlayer)
-    end
+    local eventName = GetEventName('client:UpdateAttachment', sourcePlayer)
+    TriggerClientEvent(eventName, -1, netId, hash, sourcePlayer)
 end)
 
-RegisterServerEvent(resourceName..':server:RemoveItem')
+RegisterNetEvent(resourceName..':server:RemoveItem')
 AddEventHandler(resourceName..':server:RemoveItem', function(netId, hash)
-    if activeAttachments[netId] then
-        activeAttachments[netId] = nil
-        TriggerClientEvent(resourceName..':client:RemoveAttachment', -1, netId, hash)
-    end
+    local eventName = GetEventName('client:RemoveAttachment', source)
+    TriggerClientEvent(eventName, -1, netId, hash)
 end)
 
 RegisterServerEvent(resourceName..':server:RequestAttachments')
