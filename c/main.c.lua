@@ -8,38 +8,49 @@ local weaponStates = {}
 local DEBOUNCE_TIME = 1000
 
 local function InitializeLookupTables()
-    for _, categoryItems in pairs(Config.options) do
+    for _, categoryItems in pairs(Config.categories) do
         for _, item in ipairs(categoryItems) do
-            local hash = GetHashKey(item.hashName)
-            if hash then
-                item.hash = hash
-                hashToConfig[hash] = item
-                nameToHash[item.hashName] = hash
+            local hashNames = type(item.hashName) == "table" and item.hashName or {item.hashName}
+            
+            for _, hashName in ipairs(hashNames) do
+                local hash = GetHashKey(hashName)
+                if hash then
+                    local itemConfig = {
+                        hash = hash,
+                        originalHashName = hashName,
+                        model = item.model,
+                        bone = item.bone,
+                        offset = item.offset,
+                        alwaysAttached = item.alwaysAttached
+                    }
+                    
+                    -- Store in lookup tables
+                    hashToConfig[hash] = itemConfig
+                    nameToHash[hashName] = hash
+                end
             end
         end
     end
 end
 
-local function IsPedMale(ped)
-    return Citizen.InvokeNative(0x95B8E397B8F4360F, ped)
+local function GetPedGender(ped)
+    return Citizen.InvokeNative(0x6D9F5FAA7488BA46, ped) and 'male' or 'female'
 end
 
 local function GetCorrectBone(config, ped)
-    local gender = IsPedMale(ped) and 'male' or 'female'
-    if gender == 'female' and config.bone[gender] == false then
-        return config.bone.male
+    local gender = GetPedGender(ped)
+    if gender == 'female' and config.bone[gender] ~= nil and config.bone[gender] ~= false then
+        return config.bone[gender]
     end
-    
-    return config.bone[gender]
+    return config.bone.male
 end
 
 local function GetCorrectOffset(config, ped)
-    local gender = IsPedMale(ped) and 'male' or 'female'
-   if gender == 'female' and config.offset[gender] == false then
-        return config.offset.male
+    local gender = GetPedGender(ped)
+    if gender == 'female' and config.offset[gender] ~= nil and config.offset[gender] ~= false then
+        return config.offset[gender]
     end
-    
-    return config.offset[gender]
+    return config.offset.male
 end
 
 local function GetBoneIndex(ped, boneName)
@@ -183,12 +194,13 @@ CreateThread(function()
         for hash, config in pairs(hashToConfig) do
             local hasWeapon = HasPedGotWeapon(playerPed, hash, false)
             local isEquipped = currentWeapon == hash
-            local currentState = hasWeapon and not isEquipped
             
-            if weaponStates[hash] ~= currentState and 
+            local shouldBeAttached = hasWeapon and (config.alwaysAttached or not isEquipped)
+            
+            if weaponStates[hash] ~= shouldBeAttached and 
                (not lastAttachTime[hash] or (currentTime - lastAttachTime[hash]) > DEBOUNCE_TIME) then
                 
-                if currentState then
+                if shouldBeAttached then
                     if not attachedItems[hash] then
                         AttachItemToBelt(config)
                     end
@@ -196,7 +208,7 @@ CreateThread(function()
                     RemoveItemFromBelt(hash)
                 end
                 
-                weaponStates[hash] = currentState
+                weaponStates[hash] = shouldBeAttached
                 lastAttachTime[hash] = currentTime
             end
         end

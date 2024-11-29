@@ -1,13 +1,14 @@
 Config = {}
 
-Config.options = {
+Config.categories = {
     lanterns = {
         {
+            alwaysAttached = false, -- If true, the item will always be attached when equip the weapon, no matter if in use/hand or not.
             hashName = 'WEAPON_MELEE_LANTERN',
             model = `s_interact_lantern01x`,
             bone = {
                 male = 'PH_Lantern',
-                female = 'PH_Lantern', -- leave `false` to use same as male settings.
+                female = false, -- leave `false` to use same as male settings.
             },
             offset = {
                 male = {
@@ -22,11 +23,12 @@ Config.options = {
             },
         },
         {
+            alwaysAttached = false,
             hashName = 'WEAPON_MELEE_DAVY_LANTERN',
             model = `s_interact_lantern02x`,
             bone = {
                 male = 'PH_Lantern',
-                female = 'PH_Lantern',
+                female = false,
             },
             offset = {
                 male = {
@@ -41,11 +43,12 @@ Config.options = {
             },
         },
         {
+            alwaysAttached = false,
             hashName = 'WEAPON_KIT_METAL_DETECTOR',
             model = `mp005_s_interact_detectorm01x`,
             bone = {
                 male = 'PH_Lantern',
-                female = 'PH_Lantern',
+                female = false,
             },
             offset = {
                 male = {
@@ -62,6 +65,7 @@ Config.options = {
     },
     lasso = {
         {
+            alwaysAttached = false,
             hashName = 'WEAPON_LASSO',
             model = `p_cs_melee_lasso01`,
             bone = {
@@ -81,6 +85,7 @@ Config.options = {
             },
         },
         {
+            alwaysAttached = false,
             hashName = 'WEAPON_LASSO_REINFORCED',
             model = `p_cs_melee_lasso01`,
             bone = {
@@ -102,6 +107,7 @@ Config.options = {
     },
     machete = {
         {
+            alwaysAttached = false,
             hashName = 'WEAPON_MELEE_MACHETE',
             model = `p_machete01x`,
             bone = {
@@ -120,5 +126,27 @@ Config.options = {
                 female = false,
             },
         }
-    }
+    },
+    quiver = {
+        {
+            alwaysAttached = true,
+            hashName = {'weapon_bow', 'weapon_bow_improved'},
+            model = `p_arrowbundle01x`,
+            bone = {
+                male = 'CP_Back',
+                female = 'CP_Back',
+            },
+            offset = {
+                male = {
+                    x = -0.30,
+                    y = 0.0,
+                    z = 0.0,
+                    pitch = 0.0,
+                    roll = -10.0,
+                    yaw = 100.0,
+                },
+                female = false,
+            },
+        }
+    },
 }
