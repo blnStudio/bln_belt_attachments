@@ -2,8 +2,8 @@
 
 <img src="./.github/assets/banner.png" alt="bln Belt Attachments script - redm" width="100%" />
 <div style="display: flex; justify-content: space-between;">
-    <img src="./.github/assets/demo.png" alt="Image 1" width="45%" />
-    <img src="./.github/assets/demo2.png" alt="Image 2" width="45%" />
+    <img src="./.github/assets/demo-1.png" alt="Image 1" width="45%" />
+    <img src="./.github/assets/demo-2.png" alt="Image 2" width="45%" />
 </div>
 
 Realistically display your weapons and items on your character's belt when equipped from inventory but not in use! Works with lanterns, lassos, machetes, and more.
@@ -18,9 +18,10 @@ Realistically display your weapons and items on your character's belt when equip
   - Regular and reinforced lassos
   - Machetes
   - Metal detector
+  - Quiver
   - And more can be easily added!
 
-There are 5 attachements already configured for you.
+There are 7 attachements already configured for you.
 
 ## Preview
 [Video Preview](https://youtu.be/6ZGfaL8W5Ng)
@@ -43,6 +44,7 @@ The script works automatically once installed. When you have supported items in 
 - `WEAPON_LASSO` - Regular lasso
 - `WEAPON_LASSO_REINFORCED` - Reinforced lasso
 - `WEAPON_MELEE_MACHETE` - Machete
+- `WEAPON_BOW` - Quiver
 
 you can support/add more items as you need!
 
