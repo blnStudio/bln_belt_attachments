@@ -8,6 +8,11 @@
 
 Realistically display your weapons and items on your character's belt when equipped from inventory but not in use! Works with lanterns, lassos, machetes, and more.
 
+[![](https://img.shields.io/badge/YouTube-FF0000?style=flat&logo=youtube&logoColor=white)](https://youtu.be/6ZGfaL8W5Ng)
+[![Discord](https://img.shields.io/badge/Discord-1111?style=flat&logo=discord&logoColor=white&color=7289da)](https://discord.bln-studio.com/)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/blnStudio/bln_belt_attachments)
+![License](https://img.shields.io/github/license/blnStudio/bln_belt_attachments)
+
 ## Features
 - Automatically shows/hides items on your belt
 - Synchronized across all players - everyone sees each other's belt items
@@ -22,9 +27,6 @@ Realistically display your weapons and items on your character's belt when equip
   - And more can be easily added!
 
 There are 7 attachements already configured for you.
-
-## Preview
-[Video Preview](https://youtu.be/6ZGfaL8W5Ng)
 
 ## Installation
 1. Download the `bln_belt_attachments` script
