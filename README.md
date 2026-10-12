@@ -172,7 +172,7 @@ If your attachment isn't appearing:
 
 ## Support 💬
 Need help? Join our Discord server:
-[Join Discord](https://discord.com/invite/MEZRYQVpnt)
+[Join Discord](https://discord.bln-studio.com/)
 
 ## Credits 🙏
 Created by [BLN Studio](https://bln.tebex.io)
